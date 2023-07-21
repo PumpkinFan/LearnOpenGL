@@ -10,14 +10,14 @@ const unsigned int SCR_HEIGHT = 600;
 
 // OpenGL requires us to define a vertex and fragment shader ourselves
 // GLSL source code for vertex shader
-const char *vertexShaderSource = "#version 330 core\n"
+const char* vertexShaderSource = "#version 330 core\n"
 	"layout (location = 0) in vec3 aPos;\n"
 	"void main()\n"
 	"{\n"
 	"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
 	"}\0";
-
-const char *fragmentShaderSource = "#version 330 core\n"
+// GLSL source code for fragment shader
+const char* fragmentShaderSource = "#version 330 core\n"
 	"out vec4 FragColor;\n"
 	"void main()\n"
 	"{\n"
@@ -49,11 +49,31 @@ int main() {
 
 	// defining the vertices of a triangle
 	// in OpenGL all coordinates are in 3D 
+	/* 
 	float vertices[] = {
 		-0.5f, -0.5f, 0.0f,
 		0.5f, -0.5f, 0.0f,
 		0.0f, 0.5f, 0.0f,
+	}; 
+	*/
+
+	// defining the vertices of a rectangle composed of two triangles
+	float vertices[] = {
+		-0.5f, 0.5f, 0.0f, // top left
+		0.5f, 0.5f, 0.0f, // top right
+		0.5f, -0.5f, 0.0f, // bottom right
+		-0.5f, -0.5f, 0.0f, // bottom left
 	};
+	unsigned int indices[] = {
+		0, 1, 2, // first triangle
+		0, 2, 3, // second triangle
+	};
+
+	// the vertex array object (VAO) stores vertex array pointer configurations
+	// makes it easier to do the same object rendering more than once
+	unsigned int VAO;
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
 
 	// we manage vertex memory via vertex buffer objects (VBO)
 	// these objects send many vertices to the GPU at once and 
@@ -62,6 +82,17 @@ int main() {
 	glGenBuffers(1, &VBO); // create buffer
 	glBindBuffer(GL_ARRAY_BUFFER, VBO); // bind buffer
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // copy vertices data to bound buffer memory
+
+	// using an element buffer object (EBO) to store rendering objects
+	// as a collection of vertex indices
+	unsigned int EBO;
+	glGenBuffers(1, &EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	// we need to tell OpenGL how to interpret vertex data
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // takes data from VBO currently bound to GL_ARRAY_BUFFER
+	glEnableVertexAttribArray(0);
 
 	// compiling the vertex shader
 	unsigned int vertexShader;
@@ -91,10 +122,35 @@ int main() {
 		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 
+	// we need to create a shader program which links the individual shaders
+	// into a graphics pipeline
+	unsigned int shaderProgram;
+	shaderProgram = glCreateProgram(); // initialize and return reference id
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glLinkProgram(shaderProgram);
+
+	// check for linking errors
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+	if (!success) {
+		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+		std::cout << "ERROR: Failed to link shader program\n" << infoLog << std::endl;
+	}
+
+	// we can now delete the shaders since they are no longer needed
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
 
 	while (!glfwWindowShouldClose(window)) {
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+		// render loop
+		glClearColor(0.2f, 0.9f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		glUseProgram(shaderProgram);
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents(); // checks for events (keyboard input, mouse movement, etc.)
