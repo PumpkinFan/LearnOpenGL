@@ -32,10 +32,10 @@
     <ClInclude Include="Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="fragmentShader.fs">
+    <ClInclude Include="fragmentShader.shd">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="vertexShader.vs">
+    <ClInclude Include="vertexShader.shd">
       <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -143,8 +143,8 @@
     <ClCompile Include="triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="fragmentShader.fs" />
-    <ClInclude Include="vertexShader.vs" />
+    <ClInclude Include="fragmentShader.shd" />
+    <ClInclude Include="vertexShader.shd" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -65,7 +65,7 @@ public:
 			std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
 		};
 		fragment = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fragment, 1, &vShaderCode, NULL);
+		glShaderSource(fragment, 1, &fShaderCode, NULL);
 		glCompileShader(fragment);
 		// check for any errors
 		glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
@@ -90,6 +90,11 @@ public:
 		// delete the shaders
 		glDeleteShader(vertex);
 		glDeleteShader(fragment);
+	}
+
+	// destructor 
+	~Shader() {
+		glDeleteProgram(ID);
 	}
 
 	// use/activate shader
