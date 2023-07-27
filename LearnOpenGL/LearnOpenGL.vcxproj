@@ -140,12 +140,19 @@
     <ClCompile Include="..\glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="shaders.cpp" />
+    <ClCompile Include="stb_image.cpp" />
+    <ClCompile Include="textures.cpp" />
     <ClCompile Include="triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="fragmentShader.shd" />
-    <ClInclude Include="vertexShader.shd" />
+    <ClInclude Include="fragmentShader.glsl" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="vertexShader.glsl" />
     <ClInclude Include="Shader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="container.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
