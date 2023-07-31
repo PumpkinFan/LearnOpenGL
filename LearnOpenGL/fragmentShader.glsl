@@ -7,6 +7,7 @@ in vec3 ourColor;
 in vec2 texCoord; 
 
 uniform vec4 ourColorA; // use a uniform to access values from cpp code 
+uniform float mixAmt; // Exercise 4
 
 // why is sampler2D a uniform?
 // it corresponds to the `texture unit` which we use to label multiple textures
@@ -19,9 +20,12 @@ void main()
 	// using built-in texture function to sample colors from our texture
 	//FragColor = texture(ourTexture, texCoord); 
 
+	// Exercise 1
+	vec2 faceTexCoords = vec2(-texCoord.x, texCoord.y);
+
 	// `mix` linearly interpolates color based on the final argument 
 	// 0.0 -> full texture0, 1.0 -> full texture1
-	FragColor = mix(texture(texture0, texCoord), texture(texture1, texCoord), 0.2);
+	FragColor = mix(texture(texture0, texCoord), texture(texture1, faceTexCoords), mixAmt);
 	
 	//FragColor = ourColorA;
 };

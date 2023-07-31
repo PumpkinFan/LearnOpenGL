@@ -4,7 +4,7 @@
 #include <iostream>
 
 void _framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window);
+void _processInput(GLFWwindow* window);
 
 const unsigned int SCR_WIDTH = 1600;
 const unsigned int SCR_HEIGHT = 900;
@@ -42,7 +42,7 @@ int _main() {
 
 
 	while (!glfwWindowShouldClose(window)) {
-		processInput(window);
+		_processInput(window);
 
 		// rendering commands
 		glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
@@ -57,7 +57,7 @@ int _main() {
 	return 0;
 }
 
-void processInput(GLFWwindow* window) {
+void _processInput(GLFWwindow* window) {
 
 	// glfwGetKey checks if the specified key is being pressed 
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
