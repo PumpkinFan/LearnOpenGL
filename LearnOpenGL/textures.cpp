@@ -11,7 +11,7 @@ int SCR_WIDTH = 1600;
 int SCR_HEIGHT = 900;
 
 int main() {
-
+	
 	// defining the vertices of a rectangle composed of two triangles
 	float vertices[] = {
 		// positions          // colors           // texture coords
@@ -33,14 +33,6 @@ int main() {
 		1.0f, 0.0f, // lower-right corner
 		0.5f, 1.0f, // top-middle
 	};
-
-	// load in texture data
-	int width, height, nrChannels;
-	unsigned char* data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
-	if (!data) {
-		std::cout << "Failed to load texture data" << std::endl;
-		return -1;
-	}
 
 	// initialize glfw
 	glfwInit();
@@ -76,15 +68,37 @@ int main() {
 	// this lets OpenGL use the smaller version of the same texture when an object is further away
 	// switching between mipmaps can cause artifacts - different filtering methods just like normal textures
 
+	stbi_set_flip_vertically_on_load(true); // due to differences in image vs OpenGL coordinates
+	// load in container texture
+	int width, height, nrChannels;
+	unsigned char* containerData = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
+	if (!containerData) {
+		std::cout << "Failed to load container texture data" << std::endl;
+		return -1;
+	}
+
 	// create a texture!
-	unsigned int texture; // reference ID
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	unsigned int textures[2]; // reference IDs
+	glGenTextures(2, textures);
+	glActiveTexture(GL_TEXTURE0); // activate texture unit (optional if only using 1 texture)
+	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	// generate texture and mipmap from loaded image
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, containerData);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	// good practice to free image memory after this
-	stbi_image_free(data);
+	stbi_image_free(containerData);
+
+	// load in face texture
+	unsigned char* faceData = stbi_load("awesomeface.png", &width, &height, &nrChannels, 0);
+	if (!faceData) {
+		std::cout << "Failed to load face texture data" << std::endl;
+		return -1;
+	}
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, faceData);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	stbi_image_free(faceData);
 
 	unsigned int VAO;
 	glGenVertexArrays(1, &VAO);
@@ -118,9 +132,13 @@ int main() {
 
 		//glUseProgram(shaderProgram);
 		ourShader.use();
+		ourShader.setInt("texture0", 0);
+		ourShader.setInt("texture1", 1);
 
 		// rendering the triangle
-		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindTexture(GL_TEXTURE_2D, textures[0]);
+		glBindTexture(GL_TEXTURE_2D, textures[1]);
+
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
@@ -131,6 +149,7 @@ int main() {
 
 	// deallocate resources
 	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
 	glDeleteProgram(ourShader.ID);
 	glfwDestroyWindow(window);
